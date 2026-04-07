@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Heart, Users, Droplet, Hospital, ArrowRight, MapPin } from "lucide-react";
+import { Search, Heart, Users, Droplet, Hospital, ArrowRight, MapPin, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout";
+import { useHospitals } from "@/hooks/use-hygraph";
 import heroImage from "@/assets/hero-blood-donation.jpg";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
 const governorates = [
-  "Cairo", "Giza", "Alexandria", "Luxor", "Aswan", "Ismailia", "Port Said",
-  "Suez", "Dakahlia", "Sharqia", "Qalyubia", "Gharbia", "Monufia", "Beheira",
-  "Kafr El Sheikh", "Damietta", "Fayoum", "Beni Suef", "Minya", "Asyut",
-  "Sohag", "Qena", "Red Sea", "New Valley", "Matruh", "North Sinai", "South Sinai",
+  "Cairo", "Giza", "Alexandria", "Sharqia", "Dakahlia", "Gharbia", "Monufia",
+  "Qalyubia", "Beheira", "Fayoum", "Beni Suef", "Minya", "Assiut", "Sohag",
+  "Qena", "Luxor", "Aswan", "Port Said", "Ismailia", "Suez", "Kafr El Sheikh",
 ];
 
 const stats = [
@@ -22,16 +23,12 @@ const stats = [
   { icon: Heart, value: "100,000+", label: "Lives Saved" },
 ];
 
-const hospitals = [
-  { name: "Cairo University Hospital", city: "Cairo", types: ["A+", "B+", "O+", "O-"], urgent: true },
-  { name: "Ain Shams Hospital", city: "Cairo", types: ["AB+", "A-", "B-"], urgent: false },
-  { name: "Alexandria Main Hospital", city: "Alexandria", types: ["O+", "O-", "A+"], urgent: true },
-  { name: "Aswan General Hospital", city: "Aswan", types: ["B+", "AB-", "A+"], urgent: false },
-];
-
 const Index = () => {
   const [bloodType, setBloodType] = useState("");
   const [city, setCity] = useState("");
+  const { data: hospitals, isLoading } = useHospitals();
+
+  const featured = (hospitals || []).slice(0, 4);
 
   return (
     <Layout>
@@ -73,17 +70,13 @@ const Index = () => {
             <Select value={bloodType} onValueChange={setBloodType}>
               <SelectTrigger><SelectValue placeholder="Select Blood Type" /></SelectTrigger>
               <SelectContent>
-                {bloodTypes.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
+                {bloodTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
               <SelectContent>
-                {governorates.map((g) => (
-                  <SelectItem key={g} value={g}>{g}</SelectItem>
-                ))}
+                {governorates.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
               </SelectContent>
             </Select>
             <Link to={`/results?type=${bloodType}&city=${city}`}>
@@ -124,32 +117,49 @@ const Index = () => {
               <Button variant="ghost" className="gap-1">View All <ArrowRight className="h-4 w-4" /></Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {hospitals.map((h, i) => (
-              <div
-                key={h.name}
-                className="bg-card rounded-xl p-5 border card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
-                style={{ animationDelay: `${i * 0.1}s`, opacity: 0 }}
-              >
-                {h.urgent && (
-                  <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-3">
-                    Urgent Need
-                  </span>
-                )}
-                <h3 className="font-semibold text-foreground">{h.name}</h3>
-                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <MapPin className="h-3 w-3" /> {h.city}
-                </p>
-                <div className="flex flex-wrap gap-1 mt-3">
-                  {h.types.map((t) => (
-                    <span key={t} className="px-2 py-0.5 bg-accent text-accent-foreground text-xs font-medium rounded-md">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featured.map((h, i) => {
+                const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
+                const lowTypes = h.bloodInventories?.filter((inv) => inv.quantity < 5) || [];
+                return (
+                  <div
+                    key={h.id}
+                    className={`bg-card rounded-xl p-5 border card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in-up ${hasLowStock ? "border-primary/40" : ""}`}
+                    style={{ animationDelay: `${i * 0.1}s`, opacity: 0 }}
+                  >
+                    {hasLowStock && (
+                      <Badge variant="destructive" className="mb-3 gap-1">
+                        <AlertTriangle className="h-3 w-3" /> Urgent Need
+                      </Badge>
+                    )}
+                    <h3 className="font-semibold text-foreground">{h.name}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <MapPin className="h-3 w-3" /> {h.city}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-3">
+                      {(h.bloodInventories || []).slice(0, 4).map((inv) => (
+                        <span
+                          key={inv.id}
+                          className={`px-2 py-0.5 text-xs font-medium rounded-md ${
+                            inv.quantity < 5
+                              ? "bg-primary/10 text-primary"
+                              : "bg-accent text-accent-foreground"
+                          }`}
+                        >
+                          {inv.bloodType}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
