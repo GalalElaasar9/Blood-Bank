@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Droplet } from "lucide-react";
+import { Menu, X, Droplet, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SignedIn, SignedOut, useUser, useClerk } from "@clerk/clerk-react";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -16,6 +17,8 @@ const navLinks = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b">
@@ -40,12 +43,29 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Login</Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm">Sign Up</Button>
-          </Link>
+          <SignedOut>
+            <Link to="/login">
+              <Button variant="ghost" size="sm">Login</Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm">Sign Up</Button>
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link to="/profile" className="flex items-center gap-2">
+              {user?.imageUrl ? (
+                <img src={user.imageUrl} alt="Avatar" className="h-8 w-8 rounded-full border-2 border-primary/30" />
+              ) : (
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-primary" />
+                </div>
+              )}
+              <span className="text-sm font-medium text-foreground">{user?.firstName || "Profile"}</span>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1">
+              <LogOut className="h-4 w-4" /> Logout
+            </Button>
+          </SignedIn>
         </div>
 
         <button className="lg:hidden p-2" onClick={() => setOpen(!open)}>
@@ -69,12 +89,22 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex gap-2 pt-2 border-t mt-2">
-              <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Login</Button>
-              </Link>
-              <Link to="/signup" className="flex-1" onClick={() => setOpen(false)}>
-                <Button className="w-full" size="sm">Sign Up</Button>
-              </Link>
+              <SignedOut>
+                <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
+                  <Button variant="outline" className="w-full" size="sm">Login</Button>
+                </Link>
+                <Link to="/signup" className="flex-1" onClick={() => setOpen(false)}>
+                  <Button className="w-full" size="sm">Sign Up</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <Link to="/profile" className="flex-1" onClick={() => setOpen(false)}>
+                  <Button variant="outline" className="w-full" size="sm">Profile</Button>
+                </Link>
+                <Button className="flex-1" size="sm" onClick={() => { signOut(); setOpen(false); }}>
+                  Logout
+                </Button>
+              </SignedIn>
             </div>
           </div>
         </div>
