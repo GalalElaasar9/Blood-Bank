@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Droplet, MapPin, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { Droplet, MapPin, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ const governorates = [
   "Qena", "Luxor", "Aswan", "Port Said", "Ismailia", "Suez", "Kafr El Sheikh",
 ];
 
+const normalize = (s: string) => s.trim().toLowerCase().replace(/[\s_-]+/g, "");
+
 const Results = () => {
   const [searchParams] = useSearchParams();
   const [bloodType, setBloodType] = useState(searchParams.get("type") || "");
@@ -27,8 +29,10 @@ const Results = () => {
 
   const filtered = (inventory || []).filter((item) => {
     if (!searched) return true;
-    const matchType = !bloodType || item.bloodType === bloodType;
-    const matchCity = !city || item.hospitals?.some((h) => h.city === city);
+    const matchType = !bloodType || normalize(item.bloodType) === normalize(bloodType);
+    const matchCity =
+      !city ||
+      item.hospitals?.some((h) => normalize(h.city) === normalize(city));
     return matchType && matchCity;
   });
 
