@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,38 +8,27 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 12%;
-
     --card: 0 0% 100%;
     --card-foreground: 0 0% 12%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 12%;
-
     --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 12%;
-
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
-
     --accent: 0 60% 95%;
     --accent-foreground: 0 72% 41%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 0 72% 51%;
-
     --radius: 0.75rem;
-
     --hero-gradient: linear-gradient(135deg, hsl(0 72% 51%), hsl(0 72% 38%));
     --card-shadow: 0 4px 24px -4px hsl(0 0% 0% / 0.08);
     --card-shadow-hover: 0 8px 32px -4px hsl(0 0% 0% / 0.15);
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -55,10 +44,10 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', sans-serif;
+    direction: rtl;
   }
 }
 
@@ -66,15 +55,12 @@
   .hero-gradient {
     background: var(--hero-gradient);
   }
-
   .card-shadow {
     box-shadow: var(--card-shadow);
   }
-
   .card-shadow-hover {
     box-shadow: var(--card-shadow-hover);
   }
-
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: var(--hero-gradient);

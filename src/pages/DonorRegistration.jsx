@@ -1,0 +1,184 @@
+import { useState } from "react";
+import { Heart, CheckCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Layout from "@/components/Layout.jsx";
+import { useCreateDonor } from "@/hooks/use-hygraph.js";
+import { setMutationAuth } from "@/lib/hygraph.js";
+import { toast } from "sonner";
+
+const HYGRAPH_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE3NzU2MTA3ODIsImF1ZCI6WyJodHRwczovL2FwaS1ldS13ZXN0LTIuaHlncmFwaC5jb20vdjIvY21uaHQ5aDlyMDBqMzA4dzhtb24wcWc4cC9tYXN0ZXIiLCJtYW5hZ2VtZW50LW5leHQuZ3JhcGhjbXMuY29tIl0sImlzcyI6Imh0dHBzOi8vbWFuYWdlbWVudC1ldS13ZXN0LTIuaHlncmFwaC5jb20vIiwic3ViIjoiNjk2OTU4ZmUtNDFkOC00ZjcxLWIwNGYtNWYxNDUyMjk4ZjQ0IiwianRpIjoiY21ucGN0YzFsMGJjdzA3bDNieGpzMG04ZyJ9.4xwP2V3hjjuam4vJvxVa3UiQL9QOYo5akfWWf-oDOMIUK_QV5X6YBiJz-7qMmc5KXVaFrbJ0sL3gGvXJKOpgjIPyOgMykvI2zzoL-Eh2J5WywYa6EZWRmcKesvxwNyYsEU3BA9lTxNfcAwe3l6Xk77SmO-B6V0sgxYxC7pzHV8mBSCRvN2rEK3TqyHlZDc28ZxzDekiZ3AKR7eI8MIjV_I7b6MLJX7q1bHGRB_FO4pnhcPnvnJFSBqKQxpD2fLtlBPPU_Wxht-YdIWb_rYS-98lUsvEF-tCJ4hJU0gHOPmBCCcoH5HAps1sG9wcjUHEVgcF-CW_dHUmaJjcdHXsoG6xHEhPzieWDhnfYbfZtxTpzM7fdOAn4wOAUQ-1rqVWbrqBBc0E2Ncz__5aBVd7Hl5CoF8N_IWu-hzcfE0xkACYGMcIUImrdhcEi4zo_YtzL7_jAQ1f4iZbgPwb9bmEeUZWe4YsB_8LzlK4hX6rE4HuaaodskbQsdnDzsZmhggXzvzPR8r8pgBmwa68IrA_35tUwIEjXiCpvQoetLUhjkem5CVvGq2z0Xoregx6HPSviZVYHP5vtC-q7yl52AjQXP5XD_PkeffSEON2S5JnA_TkDd1XizWtY4RImb32qlcOncx9yf7hQsDEdSlq_hU6NOmzzvUM-5TIRLp4k9gNc20s";
+
+setMutationAuth(HYGRAPH_TOKEN);
+
+const bloodTypes = [
+  { value: "A_Positive", label: "A+" },
+  { value: "A_Negative", label: "A-" },
+  { value: "B_Positive", label: "B+" },
+  { value: "B_Negative", label: "B-" },
+  { value: "AB_Positive", label: "AB+" },
+  { value: "AB_Negative", label: "AB-" },
+  { value: "O_Positive", label: "O+" },
+  { value: "O_Negative", label: "O-" },
+];
+
+const governorates = [
+  { value: "cairo", label: "القاهرة" },
+  { value: "giza", label: "الجيزة" },
+  { value: "alexandria", label: "الإسكندرية" },
+  { value: "sharqia", label: "الشرقية" },
+  { value: "dakahlia", label: "الدقهلية" },
+  { value: "gharbia", label: "الغربية" },
+  { value: "monufia", label: "المنوفية" },
+  { value: "qalyubia", label: "القليوبية" },
+  { value: "beheira", label: "البحيرة" },
+  { value: "fayoum", label: "الفيوم" },
+  { value: "beni_suef", label: "بني سويف" },
+  { value: "minya", label: "المنيا" },
+  { value: "assiut", label: "أسيوط" },
+  { value: "sohag", label: "سوهاج" },
+  { value: "qena", label: "قنا" },
+  { value: "luxor", label: "الأقصر" },
+  { value: "aswan", label: "أسوان" },
+  { value: "port_said", label: "بورسعيد" },
+  { value: "ismailia", label: "الإسماعيلية" },
+  { value: "suez", label: "السويس" },
+  { value: "kafr_el_sheikh", label: "كفر الشيخ" },
+  { value: "damietta", label: "دمياط" },
+  { value: "matrouh", label: "مطروح" },
+  { value: "north_sinai", label: "شمال سيناء" },
+  { value: "south_sinai", label: "جنوب سيناء" },
+  { value: "red_sea", label: "البحر الأحمر" },
+  { value: "new_valley", label: "الوادي الجديد" },
+];
+
+const DonorRegistration = () => {
+  const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [nationalId, setNationalId] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [bloodType, setBloodType] = useState("");
+  const [city, setCity] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const createDonor = useCreateDonor();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    if (!bloodType || !city) {
+      toast.error("يرجى اختيار فصيلة الدم والمدينة.");
+      return;
+    }
+
+    if (nationalId.length !== 14) {
+      toast.error("الرقم القومي يجب أن يكون ١٤ رقم.");
+      return;
+    }
+
+    try {
+      await createDonor.mutateAsync({
+        name,
+        bloodType,
+        phone,
+        city,
+        nationalId,
+        dateOfBirth,
+      });
+      setSubmitted(true);
+      toast.success("تم تقديم طلب التبرع بنجاح!");
+    } catch (err) {
+      console.error("خطأ في تسجيل المتبرع:", err);
+      const message = err?.response?.errors?.[0]?.message || err?.message || "فشل في التسجيل";
+      setErrorMsg(message);
+      toast.error("فشل في تقديم التسجيل: " + message);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <Layout>
+        <div className="container py-32 text-center animate-scale-in">
+          <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+          <h1 className="text-3xl font-bold mb-2">تم التسجيل بنجاح!</h1>
+          <p className="text-muted-foreground">تم تقديم طلب التبرع بنجاح. شكراً لتسجيلك كمتبرع بالدم.</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <section className="hero-gradient py-16">
+        <div className="container text-center">
+          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">كن متبرعاً</h1>
+          <p className="text-primary-foreground/80 max-w-2xl mx-auto">
+            سجل كمتبرع بالدم وساعد في إنقاذ الأرواح في مجتمعك.
+          </p>
+        </div>
+      </section>
+
+      <section className="container py-12">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-card rounded-xl card-shadow border p-6 md:p-8 animate-fade-in">
+            <div className="flex items-center gap-2 mb-6">
+              <Heart className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold">نموذج تسجيل المتبرع</h2>
+            </div>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
+                {errorMsg}
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <Input placeholder="الاسم الكامل" required value={name} onChange={(e) => setName(e.target.value)} />
+              <Input type="tel" placeholder="رقم الهاتف" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input placeholder="الرقم القومي (١٤ رقم)" required value={nationalId} onChange={(e) => setNationalId(e.target.value)} maxLength={14} />
+              <Input type="date" placeholder="تاريخ الميلاد" required value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Select value={bloodType} onValueChange={setBloodType}>
+                  <SelectTrigger><SelectValue placeholder="فصيلة الدم" /></SelectTrigger>
+                  <SelectContent>
+                    {bloodTypes.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={city} onValueChange={setCity}>
+                  <SelectTrigger><SelectValue placeholder="المدينة / المحافظة" /></SelectTrigger>
+                  <SelectContent>
+                    {governorates.map((g) => (
+                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <input type="checkbox" required className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+                <span>أؤكد أن جميع المعلومات المقدمة صحيحة وأوافق على التواصل معي للتبرع بالدم.</span>
+              </div>
+
+              <Button type="submit" size="lg" className="w-full gap-2" disabled={createDonor.isPending}>
+                {createDonor.isPending ? (
+                  <><Loader2 className="h-5 w-5 animate-spin" /> جاري التقديم...</>
+                ) : (
+                  <><Heart className="h-5 w-5" /> تسجيل كمتبرع</>
+                )}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
+
+export default DonorRegistration;
