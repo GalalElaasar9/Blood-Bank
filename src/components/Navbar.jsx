@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, useUser, useClerk } from "@clerk/clerk-react";
 
 const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/services", label: "Services" },
-  { to: "/results", label: "Blood Availability" },
-  { to: "/hospitals", label: "Hospitals" },
-  { to: "/donor-registration", label: "Become a Donor" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", label: "الرئيسية" },
+  { to: "/about", label: "من نحن" },
+  { to: "/services", label: "الخدمات" },
+  { to: "/results", label: "توفر الدم" },
+  { to: "/hospitals", label: "المستشفيات" },
+  { to: "/donor-registration", label: "تسجيل متبرع" },
+  { to: "/contact", label: "اتصل بنا" },
 ];
 
 const Navbar = () => {
@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <Droplet className="h-7 w-7 text-primary fill-primary" />
-          <span className="text-foreground">Blood<span className="text-primary">Bank</span></span>
+          <span className="text-foreground">بنك<span className="text-primary">الدم</span></span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
@@ -45,25 +45,25 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center gap-2">
           <SignedOut>
             <Link to="/login">
-              <Button variant="ghost" size="sm">Login</Button>
+              <Button variant="ghost" size="sm">تسجيل الدخول</Button>
             </Link>
             <Link to="/signup">
-              <Button size="sm">Sign Up</Button>
+              <Button size="sm">إنشاء حساب</Button>
             </Link>
           </SignedOut>
           <SignedIn>
             <Link to="/profile" className="flex items-center gap-2">
               {user?.imageUrl ? (
-                <img src={user.imageUrl} alt="Avatar" className="h-8 w-8 rounded-full border-2 border-primary/30" />
+                <img src={user.imageUrl} alt="الصورة الشخصية" className="h-8 w-8 rounded-full border-2 border-primary/30" />
               ) : (
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                   <User className="h-4 w-4 text-primary" />
                 </div>
               )}
-              <span className="text-sm font-medium text-foreground">{user?.firstName || "Profile"}</span>
+              <span className="text-sm font-medium text-foreground">{user?.firstName || "الملف الشخصي"}</span>
             </Link>
             <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1">
-              <LogOut className="h-4 w-4" /> Logout
+              <LogOut className="h-4 w-4" /> خروج
             </Button>
           </SignedIn>
         </div>
@@ -91,18 +91,18 @@ const Navbar = () => {
             <div className="flex gap-2 pt-2 border-t mt-2">
               <SignedOut>
                 <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
-                  <Button variant="outline" className="w-full" size="sm">Login</Button>
+                  <Button variant="outline" className="w-full" size="sm">تسجيل الدخول</Button>
                 </Link>
                 <Link to="/signup" className="flex-1" onClick={() => setOpen(false)}>
-                  <Button className="w-full" size="sm">Sign Up</Button>
+                  <Button className="w-full" size="sm">إنشاء حساب</Button>
                 </Link>
               </SignedOut>
               <SignedIn>
                 <Link to="/profile" className="flex-1" onClick={() => setOpen(false)}>
-                  <Button variant="outline" className="w-full" size="sm">Profile</Button>
+                  <Button variant="outline" className="w-full" size="sm">الملف الشخصي</Button>
                 </Link>
                 <Button className="flex-1" size="sm" onClick={() => { signOut(); setOpen(false); }}>
-                  Logout
+                  خروج
                 </Button>
               </SignedIn>
             </div>

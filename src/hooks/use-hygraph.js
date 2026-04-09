@@ -6,15 +6,13 @@ import {
   GET_BLOOD_INVENTORY,
   CREATE_DONOR,
   PUBLISH_DONOR,
-  Hospital,
-  BloodInventory,
-} from "@/lib/hygraph";
+} from "@/lib/hygraph.js";
 
 export function useHospitals() {
-  return useQuery<Hospital[]>({
+  return useQuery({
     queryKey: ["hospitals"],
     queryFn: async () => {
-      const data = await hygraphClient.request<{ hospitals: Hospital[] }>(GET_HOSPITALS);
+      const data = await hygraphClient.request(GET_HOSPITALS);
       return data.hospitals;
     },
     staleTime: 1000 * 60 * 5,
@@ -22,12 +20,10 @@ export function useHospitals() {
 }
 
 export function useBloodInventory() {
-  return useQuery<BloodInventory[]>({
+  return useQuery({
     queryKey: ["bloodInventory"],
     queryFn: async () => {
-      const data = await hygraphClient.request<{ bloodInventories: BloodInventory[] }>(
-        GET_BLOOD_INVENTORY
-      );
+      const data = await hygraphClient.request(GET_BLOOD_INVENTORY);
       return data.bloodInventories;
     },
     staleTime: 1000 * 60 * 5,
@@ -36,19 +32,8 @@ export function useBloodInventory() {
 
 export function useCreateDonor() {
   return useMutation({
-    mutationFn: async (variables: {
-      name: string;
-      bloodType: string;
-      phone: string;
-      city: string;
-      nationalId: string;
-      dateOfBirth: string;
-    }) => {
-      const data = await hygraphMutationClient.request<{ createDonor: { id: string } }>(
-        CREATE_DONOR,
-        variables
-      );
-      // Publish after creation
+    mutationFn: async (variables) => {
+      const data = await hygraphMutationClient.request(CREATE_DONOR, variables);
       await hygraphMutationClient.request(PUBLISH_DONOR, { id: data.createDonor.id });
       return data.createDonor;
     },

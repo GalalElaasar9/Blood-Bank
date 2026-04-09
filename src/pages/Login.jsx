@@ -1,5 +1,5 @@
 import { SignIn } from "@clerk/clerk-react";
-import Layout from "@/components/Layout";
+import Layout from "@/components/Layout.jsx";
 
 const Login = () => (
   <Layout>

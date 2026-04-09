@@ -2,13 +2,22 @@ import { MapPin, Phone, Droplet, Mail, MessageCircle, AlertTriangle } from "luci
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import Layout from "@/components/Layout";
-import { useHospitals } from "@/hooks/use-hygraph";
+import Layout from "@/components/Layout.jsx";
+import { useHospitals } from "@/hooks/use-hygraph.js";
+
+const bloodTypeDisplay = (bt) => {
+  const map = {
+    "A_Positive": "A+", "A_Negative": "A-",
+    "B_Positive": "B+", "B_Negative": "B-",
+    "AB_Positive": "AB+", "AB_Negative": "AB-",
+    "O_Positive": "O+", "O_Negative": "O-",
+  };
+  return map[bt] || bt;
+};
 
 const Hospitals = () => {
   const { data: hospitals, isLoading } = useHospitals();
 
-  // Filter hospitals that have at least one low-stock blood type
   const needingDonation = (hospitals || []).filter((h) =>
     h.bloodInventories?.some((inv) => inv.quantity < 5)
   );
@@ -17,9 +26,9 @@ const Hospitals = () => {
     <Layout>
       <section className="hero-gradient py-16">
         <div className="container text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">Hospitals Needing Donations</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">المستشفيات التي تحتاج تبرعات</h1>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            These hospitals have low blood stock. Your donation can save lives.
+            هذه المستشفيات لديها مخزون دم منخفض. تبرعك يمكن أن ينقذ حياة.
           </p>
         </div>
       </section>
@@ -34,7 +43,7 @@ const Hospitals = () => {
         ) : needingDonation.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <Droplet className="h-12 w-12 mx-auto mb-4 opacity-30" />
-            <p className="text-lg">All hospitals are well-stocked. Check back later.</p>
+            <p className="text-lg">جميع المستشفيات لديها مخزون كافٍ. تحقق لاحقاً.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -50,8 +59,8 @@ const Hospitals = () => {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="font-semibold text-lg leading-tight">{h.name}</h3>
-                      <Badge variant="destructive" className="shrink-0 ml-2 gap-1">
-                        <AlertTriangle className="h-3 w-3" /> Urgent
+                      <Badge variant="destructive" className="shrink-0 mr-2 gap-1">
+                        <AlertTriangle className="h-3 w-3" /> عاجل
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mb-1">
@@ -65,7 +74,7 @@ const Hospitals = () => {
 
                     <div className="mb-4">
                       <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        <Droplet className="h-3 w-3" /> Low Stock Blood Types:
+                        <Droplet className="h-3 w-3" /> فصائل الدم المنخفضة:
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {lowStockItems.map((inv) => (
@@ -73,7 +82,7 @@ const Hospitals = () => {
                             key={inv.id}
                             className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-md"
                           >
-                            {inv.bloodType} ({inv.quantity})
+                            {bloodTypeDisplay(inv.bloodType)} ({inv.quantity})
                           </span>
                         ))}
                       </div>
@@ -83,21 +92,21 @@ const Hospitals = () => {
                       {h.phone && (
                         <a href={`tel:${h.phone}`}>
                           <Button variant="outline" size="sm" className="gap-1">
-                            <Phone className="h-3 w-3" /> Call
+                            <Phone className="h-3 w-3" /> اتصال
                           </Button>
                         </a>
                       )}
                       {h.whatsapp && (
                         <a href={`https://wa.me/${h.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
                           <Button variant="outline" size="sm" className="gap-1">
-                            <MessageCircle className="h-3 w-3" /> WhatsApp
+                            <MessageCircle className="h-3 w-3" /> واتساب
                           </Button>
                         </a>
                       )}
                       {h.email && (
                         <a href={`mailto:${h.email}`}>
                           <Button variant="outline" size="sm" className="gap-1">
-                            <Mail className="h-3 w-3" /> Email
+                            <Mail className="h-3 w-3" /> بريد
                           </Button>
                         </a>
                       )}

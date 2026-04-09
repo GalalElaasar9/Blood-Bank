@@ -8,14 +8,11 @@ const HYGRAPH_MUTATION_API =
 
 export const hygraphClient = new GraphQLClient(HYGRAPH_CONTENT_API);
 
-// Mutation client - uses auth token for write operations
 export const hygraphMutationClient = new GraphQLClient(HYGRAPH_MUTATION_API);
 
-export function setMutationAuth(token: string) {
+export function setMutationAuth(token) {
   hygraphMutationClient.setHeader("Authorization", `Bearer ${token}`);
 }
-
-// ── Queries ──────────────────────────────────────────────
 
 export const GET_HOSPITALS = gql`
   query GetHospitals {
@@ -72,8 +69,6 @@ export const GET_DONORS = gql`
   }
 `;
 
-// ── Mutations ───────────────────────────────────────────
-
 export const CREATE_DONOR = gql`
   mutation CreateDonor(
     $name: String!
@@ -105,35 +100,3 @@ export const PUBLISH_DONOR = gql`
     }
   }
 `;
-
-// ── Types ────────────────────────────────────────────────
-
-export interface BloodInventory {
-  id: string;
-  bloodType: string;
-  quantity: number;
-  price: number;
-  hospitals?: Hospital[];
-}
-
-export interface Hospital {
-  id: string;
-  name: string;
-  city: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  whatsapp?: string;
-  bloodInventories?: BloodInventory[];
-}
-
-export interface Donor {
-  id: string;
-  name: string;
-  bloodType: string;
-  phone: string;
-  city: string;
-  nationalId?: string;
-  dateOfBirth?: string;
-  lastDonationDate?: string;
-}

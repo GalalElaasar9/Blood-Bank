@@ -1,8 +1,7 @@
-import { ReactNode } from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import Navbar from "./Navbar.jsx";
+import Footer from "./Footer.jsx";
 
-const Layout = ({ children }: { children: ReactNode }) => (
+const Layout = ({ children }) => (
   <div className="flex flex-col min-h-screen">
     <Navbar />
     <main className="flex-1">{children}</main>

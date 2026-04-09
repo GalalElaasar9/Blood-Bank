@@ -1,26 +1,49 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Heart, Users, Droplet, Hospital, ArrowRight, MapPin, AlertTriangle } from "lucide-react";
+import { Search, Heart, Users, Droplet, Hospital, ArrowLeft, MapPin, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import Layout from "@/components/Layout";
-import { useHospitals } from "@/hooks/use-hygraph";
-import heroImage from "@/assets/hero-blood-donation.jpg";
+import Layout from "@/components/Layout.jsx";
+import { useHospitals } from "@/hooks/use-hygraph.js";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const governorates = [
-  "Cairo", "Giza", "Alexandria", "Sharqia", "Dakahlia", "Gharbia", "Monufia",
-  "Qalyubia", "Beheira", "Fayoum", "Beni Suef", "Minya", "Assiut", "Sohag",
-  "Qena", "Luxor", "Aswan", "Port Said", "Ismailia", "Suez", "Kafr El Sheikh",
+  { value: "cairo", label: "القاهرة" },
+  { value: "giza", label: "الجيزة" },
+  { value: "alexandria", label: "الإسكندرية" },
+  { value: "sharqia", label: "الشرقية" },
+  { value: "dakahlia", label: "الدقهلية" },
+  { value: "gharbia", label: "الغربية" },
+  { value: "monufia", label: "المنوفية" },
+  { value: "qalyubia", label: "القليوبية" },
+  { value: "beheira", label: "البحيرة" },
+  { value: "fayoum", label: "الفيوم" },
+  { value: "beni_suef", label: "بني سويف" },
+  { value: "minya", label: "المنيا" },
+  { value: "assiut", label: "أسيوط" },
+  { value: "sohag", label: "سوهاج" },
+  { value: "qena", label: "قنا" },
+  { value: "luxor", label: "الأقصر" },
+  { value: "aswan", label: "أسوان" },
+  { value: "port_said", label: "بورسعيد" },
+  { value: "ismailia", label: "الإسماعيلية" },
+  { value: "suez", label: "السويس" },
+  { value: "kafr_el_sheikh", label: "كفر الشيخ" },
+  { value: "damietta", label: "دمياط" },
+  { value: "matrouh", label: "مطروح" },
+  { value: "north_sinai", label: "شمال سيناء" },
+  { value: "south_sinai", label: "جنوب سيناء" },
+  { value: "red_sea", label: "البحر الأحمر" },
+  { value: "new_valley", label: "الوادي الجديد" },
 ];
 
 const stats = [
-  { icon: Droplet, value: "15,000+", label: "Units Available" },
-  { icon: Users, value: "50,000+", label: "Registered Donors" },
-  { icon: Hospital, value: "200+", label: "Partner Hospitals" },
-  { icon: Heart, value: "100,000+", label: "Lives Saved" },
+  { icon: Droplet, value: "١٥,٠٠٠+", label: "وحدة متاحة" },
+  { icon: Users, value: "٥٠,٠٠٠+", label: "متبرع مسجل" },
+  { icon: Hospital, value: "٢٠٠+", label: "مستشفى شريك" },
+  { icon: Heart, value: "١٠٠,٠٠٠+", label: "حياة تم إنقاذها" },
 ];
 
 const Index = () => {
@@ -32,29 +55,27 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImage} alt="Blood donation" className="w-full h-full object-cover" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-foreground/70" />
+          <div className="w-full h-full bg-foreground/90" />
         </div>
         <div className="relative container py-24 md:py-36">
           <div className="max-w-2xl animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
-              Every Drop <span className="text-primary">Saves</span> a Life
+              كل قطرة <span className="text-primary">تنقذ</span> حياة
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed">
-              Join Egypt's largest blood donation network. Find donors, check availability, and help save lives in your community.
+              انضم إلى أكبر شبكة تبرع بالدم في مصر. ابحث عن متبرعين، تحقق من التوفر، وساعد في إنقاذ الأرواح.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link to="/donor-registration">
                 <Button size="lg" className="text-base gap-2">
-                  <Heart className="h-5 w-5" /> Become a Donor
+                  <Heart className="h-5 w-5" /> كن متبرعاً
                 </Button>
               </Link>
               <Link to="/results">
                 <Button size="lg" variant="outline" className="text-base gap-2 bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/20">
-                  <Search className="h-5 w-5" /> Find Blood
+                  <Search className="h-5 w-5" /> ابحث عن دم
                 </Button>
               </Link>
             </div>
@@ -62,33 +83,31 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Search */}
       <section className="container -mt-8 relative z-10">
         <div className="bg-card rounded-xl card-shadow p-6 md:p-8 border animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <h2 className="text-lg font-semibold mb-4">Search Blood Availability</h2>
+          <h2 className="text-lg font-semibold mb-4">ابحث عن توفر الدم</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={bloodType} onValueChange={setBloodType}>
-              <SelectTrigger><SelectValue placeholder="Select Blood Type" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger>
               <SelectContent>
                 {bloodTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={city} onValueChange={setCity}>
-              <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="اختر المدينة" /></SelectTrigger>
               <SelectContent>
-                {governorates.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                {governorates.map((g) => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
               </SelectContent>
             </Select>
             <Link to={`/results?type=${bloodType}&city=${city}`}>
               <Button className="w-full gap-2" size="default">
-                <Search className="h-4 w-4" /> Search
+                <Search className="h-4 w-4" /> بحث
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
       <section className="container py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, i) => (
@@ -105,16 +124,15 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Hospitals */}
       <section className="bg-secondary py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Featured Hospitals</h2>
-              <p className="text-muted-foreground mt-1">Hospitals currently in need of blood donations</p>
+              <h2 className="text-2xl md:text-3xl font-bold">المستشفيات المميزة</h2>
+              <p className="text-muted-foreground mt-1">مستشفيات تحتاج حالياً لتبرعات بالدم</p>
             </div>
             <Link to="/hospitals">
-              <Button variant="ghost" className="gap-1">View All <ArrowRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" className="gap-1">عرض الكل <ArrowLeft className="h-4 w-4" /></Button>
             </Link>
           </div>
           {isLoading ? (
@@ -125,7 +143,6 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {featured.map((h, i) => {
                 const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
-                const lowTypes = h.bloodInventories?.filter((inv) => inv.quantity < 5) || [];
                 return (
                   <div
                     key={h.id}
@@ -134,7 +151,7 @@ const Index = () => {
                   >
                     {hasLowStock && (
                       <Badge variant="destructive" className="mb-3 gap-1">
-                        <AlertTriangle className="h-3 w-3" /> Urgent Need
+                        <AlertTriangle className="h-3 w-3" /> حاجة عاجلة
                       </Badge>
                     )}
                     <h3 className="font-semibold text-foreground">{h.name}</h3>
@@ -163,16 +180,15 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="hero-gradient py-16">
         <div className="container text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">Ready to Save Lives?</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">هل أنت مستعد لإنقاذ الأرواح؟</h2>
           <p className="text-primary-foreground/80 mb-6 max-w-lg mx-auto">
-            Register as a blood donor today and become part of a life-saving community.
+            سجل كمتبرع بالدم اليوم وكن جزءاً من مجتمع ينقذ الحياة.
           </p>
           <Link to="/donor-registration">
             <Button size="lg" variant="outline" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0">
-              Register Now
+              سجل الآن
             </Button>
           </Link>
         </div>
