@@ -16,19 +16,20 @@ export function setMutationAuth(token) {
 
 export const GET_HOSPITALS = gql`
   query GetHospitals {
-    hospitals {
+    hospitals (first: 200) {
       id
       name
       city
       address
-      phone
       email
+      phone
       whatsapp
       bloodInventories {
-        id
-        bloodType
-        quantity
-        price
+        ... on BloodInventory {
+          bloodType
+          price
+          quantity
+        }
       }
     }
   }
@@ -97,6 +98,31 @@ export const PUBLISH_DONOR = gql`
   mutation PublishDonor($id: ID!) {
     publishDonor(where: { id: $id }) {
       id
+    }
+  }
+`;
+
+
+
+export const GET_BLOOD_INVENTORY_FILTERED = gql`
+  query GetBloodInventoryFiltered($bloodType: BloodType, $city: String) {
+    bloodInventories(where: {
+      bloodType: $bloodType
+      hospitals_some: { city: $city }
+    }) {
+      id
+      bloodType
+      quantity
+      price
+      hospitals {
+        id
+        name
+        city
+        phone
+        email
+        whatsapp
+        address
+      }
     }
   }
 `;

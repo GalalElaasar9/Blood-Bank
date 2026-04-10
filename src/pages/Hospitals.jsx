@@ -18,17 +18,25 @@ const bloodTypeDisplay = (bt) => {
 const Hospitals = () => {
   const { data: hospitals, isLoading } = useHospitals();
 
-  const needingDonation = (hospitals || []).filter((h) =>
-    h.bloodInventories?.some((inv) => inv.quantity < 5)
-  );
+  const sortedHospitals = (hospitals || []).sort((a, b) => {
+    const aLow = a.bloodInventories?.some(inv => inv.quantity < 5);
+    const bLow = b.bloodInventories?.some(inv => inv.quantity < 5);
+
+    // اللي عنده مخزون منخفض يظهر الأول
+    if (aLow && !bLow) return -1;
+    if (!aLow && bLow) return 1;
+
+    return 0;
+  });
+
 
   return (
     <Layout>
       <section className="hero-gradient py-16">
         <div className="container text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">المستشفيات التي تحتاج تبرعات</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">جميع المستشفيات وحالة مخزون الدم</h1>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            هذه المستشفيات لديها مخزون دم منخفض. تبرعك يمكن أن ينقذ حياة.
+            تعرض هذه الصفحة جميع المستشفيات، مع إبراز المستشفيات التي لديها مخزون دم منخفض وتحتاج إلى تبرعات عاجلة.
           </p>
         </div>
       </section>
@@ -40,15 +48,17 @@ const Hospitals = () => {
               <Skeleton key={i} className="h-64 rounded-xl" />
             ))}
           </div>
-        ) : needingDonation.length === 0 ? (
+        ) : sortedHospitals.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <Droplet className="h-12 w-12 mx-auto mb-4 opacity-30" />
             <p className="text-lg">جميع المستشفيات لديها مخزون كافٍ. تحقق لاحقاً.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {needingDonation.map((h, i) => {
-              const lowStockItems = h.bloodInventories?.filter((inv) => inv.quantity < 5) || [];
+            {sortedHospitals.map((h, i) => {
+              const lowStockItems = h.bloodInventories?.filter(inv => inv.quantity < 5) || [];  
+              const displayItems = lowStockItems.length > 0 ? lowStockItems: h.bloodInventories || [];            
+              const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
               return (
                 <div
                   key={h.id}
@@ -59,9 +69,12 @@ const Hospitals = () => {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="font-semibold text-lg leading-tight">{h.name}</h3>
-                      <Badge variant="destructive" className="shrink-0 mr-2 gap-1">
-                        <AlertTriangle className="h-3 w-3" /> عاجل
-                      </Badge>
+                      {hasLowStock && (
+                        <Badge variant="destructive" className="shrink-0 mr-2 gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          يحتاج تبرعات
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mb-1">
                       <MapPin className="h-3 w-3" /> {h.city}
@@ -74,17 +87,42 @@ const Hospitals = () => {
 
                     <div className="mb-4">
                       <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        <Droplet className="h-3 w-3" /> فصائل الدم المنخفضة:
+                        <Droplet className="h-3 w-3" />
+                        {hasLowStock ? "فصائل الدم المنخفضة:" : "فصائل الدم المتوفرة:"}
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {lowStockItems.map((inv) => (
-                          <span
-                            key={inv.id}
-                            className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-md"
-                          >
-                            {bloodTypeDisplay(inv.bloodType)} ({inv.quantity})
-                          </span>
-                        ))}
+                      <div className="mb-4">
+                        {h.bloodInventories?.some(inv => inv.quantity >= 5) && (
+                          <div className="mb-2">
+                            <p className="text-xs font-semibold text-green-700 mb-1">فصائل الدم المتوفرة:</p>
+                            <div className="flex flex-col gap-1">
+                              {h.bloodInventories
+                                .filter(inv => inv.quantity >= 5)
+                                .map(inv => (
+                                  <div key={inv.id} className="flex justify-between items-center">
+                                     {/* font-medium rounded-md bg-accent text-accent-foreground */}
+                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md ">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className="bg-green-100 text-green-700 p-1 rounded-md text-sm">{inv.price} ج.م</span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {h.bloodInventories?.some(inv => inv.quantity < 5) && (
+                          <div>
+                            <p className="text-xs font-semibold text-red-700 mb-1">فصائل الدم المنخفضة:</p>
+                            <div className="flex flex-col gap-1">
+                              {h.bloodInventories
+                                .filter(inv => inv.quantity < 5)
+                                .map(inv => (
+                                  <div key={inv.id} className="flex justify-between items-center">
+                                    <span className=" p-1 rounded-md bg-red-100 text-red-700 text-sm">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className=" p-1 rounded-md bg-red-100 text-red-700 text-sm">{inv.price} ج.م</span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 

@@ -8,7 +8,7 @@ const Footer = () => (
         <div>
           <Link to="/" className="flex items-center gap-2 font-bold text-xl mb-4">
             <Droplet className="h-6 w-6 text-primary fill-primary" />
-            <span>بنك<span className="text-primary">الدم</span></span>
+            <span>بنك<span className="text-primary"> الدم</span></span>
           </Link>
           <p className="text-sm text-primary-foreground/70 leading-relaxed">
             ربط المتبرعين بالمحتاجين. كل قطرة دم تساهم في إنقاذ حياة في جميع أنحاء مصر.

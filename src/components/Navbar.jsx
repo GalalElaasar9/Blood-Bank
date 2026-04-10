@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <Droplet className="h-7 w-7 text-primary fill-primary" />
-          <span className="text-foreground">بنك<span className="text-primary">الدم</span></span>
+          <span className="text-foreground">بنك<span className="text-primary"> الدم</span></span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">

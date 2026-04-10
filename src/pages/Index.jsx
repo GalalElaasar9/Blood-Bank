@@ -46,6 +46,16 @@ const stats = [
   { icon: Heart, value: "١٠٠,٠٠٠+", label: "حياة تم إنقاذها" },
 ];
 
+const bloodTypeDisplay = (bt) => {
+  const map = {
+    "A_Positive": "A+", "A_Negative": "A-",
+    "B_Positive": "B+", "B_Negative": "B-",
+    "AB_Positive": "AB+", "AB_Negative": "AB-",
+    "O_Positive": "O+", "O_Negative": "O-",
+  };
+  return map[bt] || bt;
+};
+
 const Index = () => {
   const [bloodType, setBloodType] = useState("");
   const [city, setCity] = useState("");
@@ -83,7 +93,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="container -mt-8 relative z-10">
+      {/* <section className="container -mt-8 relative z-10">
         <div className="bg-card rounded-xl card-shadow p-6 md:p-8 border animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <h2 className="text-lg font-semibold mb-4">ابحث عن توفر الدم</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -106,7 +116,7 @@ const Index = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="container py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -135,13 +145,14 @@ const Index = () => {
               <Button variant="ghost" className="gap-1">عرض الكل <ArrowLeft className="h-4 w-4" /></Button>
             </Link>
           </div>
+
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featured.map((h, i) => {
+              {(hospitals || []).map((h, i) => {
                 const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
                 return (
                   <div
@@ -159,17 +170,27 @@ const Index = () => {
                       <MapPin className="h-3 w-3" /> {h.city}
                     </p>
                     <div className="flex flex-wrap gap-1 mt-3">
-                      {(h.bloodInventories || []).slice(0, 4).map((inv) => (
-                        <span
-                          key={inv.id}
-                          className={`px-2 py-0.5 text-xs font-medium rounded-md ${
-                            inv.quantity < 5
-                              ? "bg-primary/10 text-primary"
-                              : "bg-accent text-accent-foreground"
-                          }`}
-                        >
-                          {inv.bloodType}
-                        </span>
+                      {(h.bloodInventories || []).map((inv) => (
+                        <div className="flex items-center justify-between w-[100%]" key={inv.id}>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-medium rounded-md ${
+                              inv.quantity < 5
+                                ? "bg-primary/10 text-primary"
+                                : "bg-accent text-accent-foreground"
+                            }`}
+                          >
+                            {bloodTypeDisplay(inv.bloodType)}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-medium rounded-md ${
+                              inv.quantity < 5
+                                ? "bg-primary/10 text-primary"
+                                : "bg-accent text-accent-foreground"
+                            }`}
+                          >
+                            <strong>السعر : </strong> {inv.price}
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -179,6 +200,7 @@ const Index = () => {
           )}
         </div>
       </section>
+
 
       <section className="hero-gradient py-16">
         <div className="container text-center">

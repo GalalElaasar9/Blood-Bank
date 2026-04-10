@@ -6,6 +6,7 @@ import {
   GET_BLOOD_INVENTORY,
   CREATE_DONOR,
   PUBLISH_DONOR,
+  GET_BLOOD_INVENTORY_FILTERED
 } from "@/lib/hygraph.js";
 
 export function useHospitals() {
@@ -37,5 +38,21 @@ export function useCreateDonor() {
       await hygraphMutationClient.request(PUBLISH_DONOR, { id: data.createDonor.id });
       return data.createDonor;
     },
+    onError: (err) => console.error(err),
+    onSuccess: (donor) => console.log("Donor created", donor),
+  });
+}
+
+export function useFilteredBloodInventory({ bloodType, city }) {
+  return useQuery({
+    queryKey: ["bloodInventory", bloodType, city],
+    queryFn: async () => {
+      const data = await hygraphClient.request(GET_BLOOD_INVENTORY_FILTERED, {
+        bloodType,
+        city,
+      });
+      return data.bloodInventories;
+    },
+    staleTime: 1000 * 60 * 5,
   });
 }
