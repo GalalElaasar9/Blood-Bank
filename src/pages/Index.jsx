@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout.jsx";
-import { useFeaturedHospitals } from "@/hooks/use-hygraph.js";
+import { useFeaturedHospitals, useHospitals } from "@/hooks/use-hygraph.js";
 import heroBg from "@/assets/hero-bg.jpg";
 import sectionBg from "@/assets/section-bg.jpg";
 import ctaBg from "@/assets/cta-bg.jpg";
@@ -27,15 +27,30 @@ const bloodTypeDisplay = (bt) => {
 };
 
 const Index = () => {
-  const { data: hospitals, isLoading } = useFeaturedHospitals();
+  const { data: featuredData, isLoading: featuredLoading } = useFeaturedHospitals();
+  const { data: allHospitals, isLoading: allLoading } = useHospitals();
+
+  const isLoading = featuredLoading && allLoading;
+
+  // Use featured query data, fallback to top 4 from all hospitals sorted by available stock
+  let hospitals = featuredData;
+  if (!hospitals || hospitals.length === 0) {
+    hospitals = (allHospitals || [])
+      .map((h) => ({
+        ...h,
+        availableCount: (h.bloodInventories || []).filter((inv) => inv.quantity >= 5).length,
+      }))
+      .sort((a, b) => b.availableCount - a.availableCount)
+      .slice(0, 4);
+  }
 
   return (
     <Layout>
-      {/* Hero with background image */}
+      {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroBg} alt="" className="w-full h-full object-cover" width={1920} height={800} />
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-foreground/75" />
         </div>
         <div className="relative container py-24 md:py-36">
           <div className="max-w-2xl animate-fade-in">
@@ -61,7 +76,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats with background */}
+      {/* Stats */}
       <section
         className="relative py-16"
         style={{ backgroundImage: `url(${sectionBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
@@ -84,7 +99,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Hospitals - top 4 with most available stock */}
+      {/* Featured Hospitals */}
       <section className="bg-secondary py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
@@ -106,36 +121,43 @@ const Index = () => {
               {(hospitals || []).map((h, i) => (
                 <div
                   key={h.id}
-                  className="bg-card rounded-xl p-5 border card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
+                  className="rounded-xl border bg-card card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-fade-in-up"
                   style={{ animationDelay: `${i * 0.1}s`, opacity: 0 }}
                 >
-                  <h3 className="font-semibold text-foreground">{h.name}</h3>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                    <MapPin className="h-3 w-3" /> {h.city}
-                  </p>
-                  <div className="flex flex-col gap-1 mt-3">
-                    {(h.bloodInventories || []).map((inv) => (
-                      <div className="flex items-center justify-between" key={inv.id}>
-                        <span
-                          className={`px-2 py-0.5 text-xs font-medium rounded-md ${
-                            inv.quantity >= 5
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {bloodTypeDisplay(inv.bloodType)}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 text-xs font-medium rounded-md ${
-                            inv.quantity >= 5
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {inv.price} ج.م
-                        </span>
-                      </div>
-                    ))}
+                  <div className="h-1.5 bg-primary" />
+                  <div className="p-5">
+                    <h3 className="font-semibold text-foreground">{h.name}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <MapPin className="h-3 w-3" /> {h.city}
+                    </p>
+                    <div className="flex flex-col gap-1 mt-3">
+                      {(h.bloodInventories || []).filter((inv) => inv.quantity >= 5).length > 0 && (
+                        <div className="mb-2">
+                          <p className="text-xs font-semibold text-green-700 mb-1">فصائل متوفرة:</p>
+                          {(h.bloodInventories || [])
+                            .filter((inv) => inv.quantity >= 5)
+                            .map((inv) => (
+                              <div key={inv.id} className="flex justify-between items-center mb-0.5">
+                                <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
+                                <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{inv.price} ج.م</span>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                      {(h.bloodInventories || []).filter((inv) => inv.quantity < 5).length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-red-700 mb-1">مخزون منخفض:</p>
+                          {(h.bloodInventories || [])
+                            .filter((inv) => inv.quantity < 5)
+                            .map((inv) => (
+                              <div key={inv.id} className="flex justify-between items-center mb-0.5">
+                                <span className="bg-red-100 text-red-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
+                                <span className="bg-red-100 text-red-700 px-2 py-0.5 text-xs rounded-md">{inv.price} ج.م</span>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -144,7 +166,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA with background image */}
+      {/* CTA */}
       <section className="relative py-16">
         <div className="absolute inset-0">
           <img src={ctaBg} alt="" className="w-full h-full object-cover" loading="lazy" width={1920} height={600} />
