@@ -44,6 +44,17 @@ export function useCreateDonor() {
   });
 }
 
+export function useFeaturedHospitals() {
+  return useQuery({
+    queryKey: ["featuredHospitals"],
+    queryFn: async () => {
+      const data = await hygraphClient.request(GET_FEATURED_HOSPITALS);
+      return data.hospitals;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 export function useFilteredBloodInventory({ bloodType, city }) {
   return useQuery({
     queryKey: ["bloodInventory", bloodType, city],
