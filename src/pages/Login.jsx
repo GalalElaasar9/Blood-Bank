@@ -3,7 +3,7 @@ import Layout from "@/components/Layout.jsx";
 
 const Login = () => (
   <Layout>
-    <section className="container py-16 flex items-center justify-center min-h-[70vh]">
+    <section className="container py-16 flex items-center justify-center min-h-[70vh]" style={{ direction:"ltr" }}>
       <div className="animate-fade-in">
         <SignIn routing="path" path="/login" signUpUrl="/signup" afterSignInUrl="/" />
       </div>
