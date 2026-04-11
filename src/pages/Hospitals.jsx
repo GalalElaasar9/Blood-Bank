@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MapPin, Phone, Droplet, Mail, MessageCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,20 +16,25 @@ const bloodTypeDisplay = (bt) => {
   return map[bt] || bt;
 };
 
+const ITEMS_PER_PAGE = 8;
+
 const Hospitals = () => {
   const { data: hospitals, isLoading } = useHospitals();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const sortedHospitals = (hospitals || []).sort((a, b) => {
     const aLow = a.bloodInventories?.some(inv => inv.quantity < 5);
     const bLow = b.bloodInventories?.some(inv => inv.quantity < 5);
-
-    // اللي عنده مخزون منخفض يظهر الأول
     if (aLow && !bLow) return -1;
     if (!aLow && bLow) return 1;
-
     return 0;
   });
 
+  const totalPages = Math.ceil(sortedHospitals.length / ITEMS_PER_PAGE);
+  const paginatedHospitals = sortedHospitals.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <Layout>
@@ -54,42 +60,36 @@ const Hospitals = () => {
             <p className="text-lg">جميع المستشفيات لديها مخزون كافٍ. تحقق لاحقاً.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedHospitals.map((h, i) => {
-              const lowStockItems = h.bloodInventories?.filter(inv => inv.quantity < 5) || [];  
-              const displayItems = lowStockItems.length > 0 ? lowStockItems: h.bloodInventories || [];            
-              const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
-              return (
-                <div
-                  key={h.id}
-                  className="rounded-xl border border-primary/30 bg-card card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-fade-in-up"
-                  style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}
-                >
-                  <div className="h-1.5 bg-primary" />
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-lg leading-tight">{h.name}</h3>
-                      {hasLowStock && (
-                        <Badge variant="destructive" className="shrink-0 mr-2 gap-1">
-                          <AlertTriangle className="h-3 w-3" />
-                          يحتاج تبرعات
-                        </Badge>
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedHospitals.map((h, i) => {
+                const hasLowStock = h.bloodInventories?.some((inv) => inv.quantity < 5);
+                return (
+                  <div
+                    key={h.id}
+                    className={`rounded-xl border ${hasLowStock ? "border-primary/30" : ""} bg-card card-shadow hover:card-shadow-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-fade-in-up`}
+                    style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}
+                  >
+                    <div className="h-1.5 bg-primary" />
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-semibold text-lg leading-tight">{h.name}</h3>
+                        {hasLowStock && (
+                          <Badge variant="destructive" className="shrink-0 mr-2 gap-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            يحتاج تبرعات
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1 mb-1">
+                        <MapPin className="h-3 w-3" /> {h.city}
+                      </p>
+                      {h.phone && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1 mb-4">
+                          <Phone className="h-3 w-3" /> {h.phone}
+                        </p>
                       )}
-                    </div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mb-1">
-                      <MapPin className="h-3 w-3" /> {h.city}
-                    </p>
-                    {h.phone && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1 mb-4">
-                        <Phone className="h-3 w-3" /> {h.phone}
-                      </p>
-                    )}
 
-                    <div className="mb-4">
-                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        <Droplet className="h-3 w-3" />
-                        {hasLowStock ? "فصائل الدم المنخفضة:" : "فصائل الدم المتوفرة:"}
-                      </p>
                       <div className="mb-4">
                         {h.bloodInventories?.some(inv => inv.quantity >= 5) && (
                           <div className="mb-2">
@@ -99,15 +99,13 @@ const Hospitals = () => {
                                 .filter(inv => inv.quantity >= 5)
                                 .map(inv => (
                                   <div key={inv.id} className="flex justify-between items-center">
-                                     {/* font-medium rounded-md bg-accent text-accent-foreground */}
-                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md ">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
                                     <span className="bg-green-100 text-green-700 p-1 rounded-md text-sm">{inv.price} ج.م</span>
                                   </div>
                                 ))}
                             </div>
                           </div>
                         )}
-
                         {h.bloodInventories?.some(inv => inv.quantity < 5) && (
                           <div>
                             <p className="text-xs font-semibold text-red-700 mb-1">فصائل الدم المنخفضة:</p>
@@ -116,44 +114,76 @@ const Hospitals = () => {
                                 .filter(inv => inv.quantity < 5)
                                 .map(inv => (
                                   <div key={inv.id} className="flex justify-between items-center">
-                                    <span className=" p-1 rounded-md bg-red-100 text-red-700 text-sm">{bloodTypeDisplay(inv.bloodType)}</span>
-                                    <span className=" p-1 rounded-md bg-red-100 text-red-700 text-sm">{inv.price} ج.م</span>
+                                    <span className="bg-red-100 text-red-700 p-1 rounded-md text-sm">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className="bg-red-100 text-red-700 p-1 rounded-md text-sm">{inv.price} ج.م</span>
                                   </div>
                                 ))}
                             </div>
                           </div>
                         )}
                       </div>
-                    </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {h.phone && (
-                        <a href={`tel:${h.phone}`}>
-                          <Button variant="outline" size="sm" className="gap-1">
-                            <Phone className="h-3 w-3" /> اتصال
-                          </Button>
-                        </a>
-                      )}
-                      {h.whatsapp && (
-                        <a href={`https://wa.me/${h.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="gap-1">
-                            <MessageCircle className="h-3 w-3" /> واتساب
-                          </Button>
-                        </a>
-                      )}
-                      {h.email && (
-                        <a href={`mailto:${h.email}`}>
-                          <Button variant="outline" size="sm" className="gap-1">
-                            <Mail className="h-3 w-3" /> بريد
-                          </Button>
-                        </a>
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {h.phone && (
+                          <a href={`tel:${h.phone}`}>
+                            <Button variant="outline" size="sm" className="gap-1">
+                              <Phone className="h-3 w-3" /> اتصال
+                            </Button>
+                          </a>
+                        )}
+                        {h.whatsapp && (
+                          <a href={`https://wa.me/${h.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="gap-1">
+                              <MessageCircle className="h-3 w-3" /> واتساب
+                            </Button>
+                          </a>
+                        )}
+                        {h.email && (
+                          <a href={`mailto:${h.email}`}>
+                            <Button variant="outline" size="sm" className="gap-1">
+                              <Mail className="h-3 w-3" /> بريد
+                            </Button>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  السابق
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  التالي
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </Layout>

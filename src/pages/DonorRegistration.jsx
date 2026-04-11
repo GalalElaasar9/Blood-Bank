@@ -53,6 +53,24 @@ const governorates = [
   { value: "new_valley", label: "الوادي الجديد" },
 ];
 
+const validateEgyptianNationalId = (id) => {
+  if (!/^\d{14}$/.test(id)) return "الرقم القومي يجب أن يكون ١٤ رقم";
+  if (id[0] !== "2" && id[0] !== "3") return "الرقم القومي يجب أن يبدأ بـ ٢ أو ٣";
+  const month = parseInt(id.substring(3, 5));
+  const day = parseInt(id.substring(5, 7));
+  if (month < 1 || month > 12) return "شهر الميلاد غير صحيح في الرقم القومي";
+  if (day < 1 || day > 31) return "يوم الميلاد غير صحيح في الرقم القومي";
+  return null;
+};
+
+const validateEgyptianPhone = (phone) => {
+  const cleaned = phone.replace(/[\s\-]/g, "");
+  if (!/^01[0125]\d{8}$/.test(cleaned)) {
+    return "رقم الموبايل يجب أن يبدأ بـ 01 ويتكون من ١١ رقم (مثال: 01012345678)";
+  }
+  return null;
+};
+
 const DonorRegistration = () => {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
@@ -75,8 +93,15 @@ const DonorRegistration = () => {
       return;
     }
 
-    if (nationalId.length !== 14) {
-      toast.error("الرقم القومي يجب أن يكون ١٤ رقم.");
+    const phoneError = validateEgyptianPhone(phone);
+    if (phoneError) {
+      toast.error(phoneError);
+      return;
+    }
+
+    const idError = validateEgyptianNationalId(nationalId);
+    if (idError) {
+      toast.error(idError);
       return;
     }
 
@@ -84,7 +109,7 @@ const DonorRegistration = () => {
       await createDonor.mutateAsync({
         name,
         bloodType,
-        phone,
+        phone: phone.replace(/[\s\-]/g, ""),
         city,
         nationalId,
         dateOfBirth,
@@ -138,8 +163,30 @@ const DonorRegistration = () => {
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <Input placeholder="الاسم الكامل" required value={name} onChange={(e) => setName(e.target.value)} />
-              <Input type="tel" placeholder="رقم الهاتف" required value={phone} onChange={(e) => setPhone(e.target.value)} />
-              <Input placeholder="الرقم القومي (١٤ رقم)" required value={nationalId} onChange={(e) => setNationalId(e.target.value)} maxLength={14} />
+              <div>
+                <Input
+                  type="tel"
+                  placeholder="رقم الموبايل (مثال: 01012345678)"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={11}
+                />
+                <p className="text-xs text-muted-foreground mt-1">يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015</p>
+              </div>
+              <div>
+                <Input
+                  placeholder="الرقم القومي (١٤ رقم)"
+                  required
+                  value={nationalId}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    setNationalId(val);
+                  }}
+                  maxLength={14}
+                />
+                <p className="text-xs text-muted-foreground mt-1">يجب أن يبدأ بـ ٢ أو ٣ ويتكون من ١٤ رقم</p>
+              </div>
               <Input type="date" placeholder="تاريخ الميلاد" required value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
