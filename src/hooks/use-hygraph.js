@@ -6,6 +6,7 @@ import {
   GET_BLOOD_INVENTORY,
   CREATE_DONOR,
   PUBLISH_DONOR,
+  GET_FEATURED_HOSPITALS,
   GET_BLOOD_INVENTORY_FILTERED
 } from "@/lib/hygraph.js";
 
@@ -40,6 +41,17 @@ export function useCreateDonor() {
     },
     onError: (err) => console.error(err),
     onSuccess: (donor) => console.log("Donor created", donor),
+  });
+}
+
+export function useFeaturedHospitals() {
+  return useQuery({
+    queryKey: ["featuredHospitals"],
+    queryFn: async () => {
+      const data = await hygraphClient.request(GET_FEATURED_HOSPITALS);
+      return data.hospitals;
+    },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
