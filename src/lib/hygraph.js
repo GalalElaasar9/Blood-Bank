@@ -104,7 +104,51 @@ export const PUBLISH_DONOR = gql`
 
 
 
+export const GET_FEATURED_HOSPITALS = gql`
+  query {
+    hospitals(
+      first: 4
+      where: {
+        bloodInventories_some: {
+          quantity_gt: 5
+        }
+      }
+    ) {
+      id
+      name
+      city
+      bloodInventories {
+        id
+        bloodType
+        quantity
+        price
+      }
+    }
+  }
+`;
+
 export const GET_BLOOD_INVENTORY_FILTERED = gql`
+  query GetBloodInventoryFiltered($bloodType: BloodType, $city: String) {
+    bloodInventories(where: {
+      bloodType: $bloodType
+      hospitals_some: { city: $city }
+    }) {
+      id
+      bloodType
+      quantity
+      price
+      hospitals {
+        id
+        name
+        city
+        phone
+        email
+        whatsapp
+        address
+      }
+    }
+  }
+`;
   query GetBloodInventoryFiltered($bloodType: BloodType, $city: String) {
     bloodInventories(where: {
       bloodType: $bloodType
