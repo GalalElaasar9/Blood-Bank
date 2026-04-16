@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout.jsx";
 import { useFeaturedHospitals, useHospitals } from "@/hooks/use-hygraph.js";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-blood-donation.jpg";
 import sectionBg from "@/assets/section-bg.jpg";
 import ctaBg from "@/assets/cta-bg.jpg";
 
@@ -49,7 +49,7 @@ const Index = () => {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBg} alt="" className="w-full h-full object-cover" width={1920} height={800} />
+          <img src={heroBg} alt="" className="w-full h-full" width={1920} height={800} />
           <div className="absolute inset-0 bg-foreground/75" />
         </div>
         <div className="relative container py-24 md:py-36">
@@ -139,20 +139,8 @@ const Index = () => {
                             .map((inv) => (
                               <div key={inv.id} className="flex justify-between items-center mb-0.5">
                                 <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
+                                <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">العدد المتوفر :  ({inv.quantity})</span>
                                 <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{inv.price} ج.م</span>
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                      {(h.bloodInventories || []).filter((inv) => inv.quantity < 5).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-red-700 mb-1">مخزون منخفض:</p>
-                          {(h.bloodInventories || [])
-                            .filter((inv) => inv.quantity < 5)
-                            .map((inv) => (
-                              <div key={inv.id} className="flex justify-between items-center mb-0.5">
-                                <span className="bg-red-100 text-red-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
-                                <span className="bg-red-100 text-red-700 px-2 py-0.5 text-xs rounded-md">{inv.price} ج.م</span>
                               </div>
                             ))}
                         </div>

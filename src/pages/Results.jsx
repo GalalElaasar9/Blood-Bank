@@ -58,7 +58,7 @@ const bloodTypeDisplay = (bt) => {
   return map[bt] || bt;
 };
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 6;
 
 const Results = () => {
   const [bloodType, setBloodType] = useState("");
@@ -175,6 +175,7 @@ const Results = () => {
                                 .map((inv) => (
                                   <div key={inv.id} className="flex justify-between items-center">
                                     <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded-md">العدد المتوفر :  ({inv.quantity})</span>
                                     <span className="bg-green-100 text-green-700 p-1 rounded-md text-sm">{inv.price} ج.م</span>
                                   </div>
                                 ))}
@@ -190,6 +191,7 @@ const Results = () => {
                                 .map((inv) => (
                                   <div key={inv.id} className="flex justify-between items-center">
                                     <span className="bg-red-100 text-red-700 p-1 rounded-md text-sm">{bloodTypeDisplay(inv.bloodType)}</span>
+                                    <span className="bg-red-100 text-red-700 p-1 rounded-md text-sm">العدد المتوفر :  ({inv.quantity})</span>
                                     <span className="bg-red-100 text-red-700 p-1 rounded-md text-sm">{inv.price} ج.م</span>
                                   </div>
                                 ))}

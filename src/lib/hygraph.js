@@ -35,30 +35,6 @@ export const GET_HOSPITALS = gql`
   }
 `;
 
-export const GET_FEATURED_HOSPITALS = gql`
-  query {
-    hospitals(
-      first: 4
-      where: {
-        bloodInventories_some: {
-          quantity_gt: 5
-        }
-      }
-    ) {
-      id
-      name
-      city
-      bloodInventories {
-        id
-        bloodType
-        quantity
-        price
-      }
-    }
-  }
-`;
-
-
 export const GET_BLOOD_INVENTORY = gql`
   query GetBloodInventory {
     bloodInventories {
