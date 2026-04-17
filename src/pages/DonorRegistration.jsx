@@ -2,14 +2,19 @@ import { useState } from "react";
 import { Heart, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Layout from "@/components/Layout.jsx";
 import { useCreateDonor } from "@/hooks/use-hygraph.js";
 import { setMutationAuth } from "@/lib/hygraph.js";
 import { toast } from "sonner";
 
-const HYGRAPH_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE3NzU2MTA3ODIsImF1ZCI6WyJodHRwczovL2FwaS1ldS13ZXN0LTIuaHlncmFwaC5jb20vdjIvY21uaHQ5aDlyMDBqMzA4dzhtb24wcWc4cC9tYXN0ZXIiLCJtYW5hZ2VtZW50LW5leHQuZ3JhcGhjbXMuY29tIl0sImlzcyI6Imh0dHBzOi8vbWFuYWdlbWVudC1ldS13ZXN0LTIuaHlncmFwaC5jb20vIiwic3ViIjoiNjk2OTU4ZmUtNDFkOC00ZjcxLWIwNGYtNWYxNDUyMjk4ZjQ0IiwianRpIjoiY21ucGN0YzFsMGJjdzA3bDNieGpzMG04ZyJ9.4xwP2V3hjjuam4vJvxVa3UiQL9QOYo5akfWWf-oDOMIUK_QV5X6YBiJz-7qMmc5KXVaFrbJ0sL3gGvXJKOpgjIPyOgMykvI2zzoL-Eh2J5WywYa6EZWRmcKesvxwNyYsEU3BA9lTxNfcAwe3l6Xk77SmO-B6V0sgxYxC7pzHV8mBSCRvN2rEK3TqyHlZDc28ZxzDekiZ3AKR7eI8MIjV_I7b6MLJX7q1bHGRB_FO4pnhcPnvnJFSBqKQxpD2fLtlBPPU_Wxht-YdIWb_rYS-98lUsvEF-tCJ4hJU0gHOPmBCCcoH5HAps1sG9wcjUHEVgcF-CW_dHUmaJjcdHXsoG6xHEhPzieWDhnfYbfZtxTpzM7fdOAn4wOAUQ-1rqVWbrqBBc0E2Ncz__5aBVd7Hl5CoF8N_IWu-hzcfE0xkACYGMcIUImrdhcEi4zo_YtzL7_jAQ1f4iZbgPwb9bmEeUZWe4YsB_8LzlK4hX6rE4HuaaodskbQsdnDzsZmhggXzvzPR8r8pgBmwa68IrA_35tUwIEjXiCpvQoetLUhjkem5CVvGq2z0Xoregx6HPSviZVYHP5vtC-q7yl52AjQXP5XD_PkeffSEON2S5JnA_TkDd1XizWtY4RImb32qlcOncx9yf7hQsDEdSlq_hU6NOmzzvUM-5TIRLp4k9gNc20s";
-
+const HYGRAPH_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE3NzU3ODM0MDAsImF1ZCI6WyJodHRwczovL2FwaS1ldS13ZXN0LTIuaHlncmFwaC5jb20vdjIvY21uaHQ5aDlyMDBqMzA4dzhtb24wcWc4cC9tYXN0ZXIiLCJtYW5hZ2VtZW50LW5leHQuZ3JhcGhjbXMuY29tIl0sImlzcyI6Imh0dHBzOi8vbWFuYWdlbWVudC1ldS13ZXN0LTIuaHlncmFwaC5jb20vIiwic3ViIjoiZTExMTE4YmUtOGIzZi00NjBhLWIyNGQtMjVlZWQ1Njc5YzdjIiwianRpIjoiY21uczdsNHZsMDdxMDA3bWk2ODhiNGhjeCJ9.buEoVZMbjKeDJZvGOdurFTo4y7Dz_n7bEtbnKVF307NgpoFIMIBZci7cAcrShtDG_C18bbYsBL7-UfGN14glcK6yey_NA7UZUn-5puYwwvyO5iHWoVFG1aNJZGexh_2DqhqaU3z2aBxxmCoqE5D5jAxdP-IdDR0G8SK5vFy0SGsV6wyWVNFuDe1ERYhvK4eI0i7vDP8WoNbB35Cd94fcY_lk-AO1eyDq7FICUWWs8TtiwEfJMeC3Ep2tCun9J6wXbTefcmJU2KpReGhzJHi8kBQhnn9YUEZgdDrejLcDsIpFs1qEKPvmSzTpwyNowZgDkyxswROgh3M93gNZmTjfESkTPphSDGEw_htrm7FdkCBNkkSkSwibNJ-8z9lr1fPy9n-eIMTmnYC9f2xXkueDgPENPaCKsGefjF5P3ZIaBtGziVR-U26pXkF1QbdpGeVPQ7I6H_xbS-IezPxIYcUBSiFE64Ys-dCIgPD2c1DMm9cJgF9TeXqC8747fGEkGSCe-gi-TOn7-K-bHke3Rze0BPvIGAAqKWear07_j2u4r5ZJJ1MDre2loXePtf4wwE2ZxEjfwzj3_PUAX4fotPKzK-ljPfrAO7J4VnlBnx7Wz4ePjMmlGsp1kuH2WzF6bkK9n3Ikpbplz-TF4mly3MIUcwwrNPi06j79LwvmqPIWfvg"
 setMutationAuth(HYGRAPH_TOKEN);
 
 const bloodTypes = [
@@ -55,7 +60,8 @@ const governorates = [
 
 const validateEgyptianNationalId = (id) => {
   if (!/^\d{14}$/.test(id)) return "الرقم القومي يجب أن يكون ١٤ رقم";
-  if (id[0] !== "2" && id[0] !== "3") return "الرقم القومي يجب أن يبدأ بـ ٢ أو ٣";
+  if (id[0] !== "2" && id[0] !== "3")
+    return "الرقم القومي يجب أن يبدأ بـ ٢ أو ٣";
   const month = parseInt(id.substring(3, 5));
   const day = parseInt(id.substring(5, 7));
   if (month < 1 || month > 12) return "شهر الميلاد غير صحيح في الرقم القومي";
@@ -118,7 +124,8 @@ const DonorRegistration = () => {
       toast.success("تم تقديم طلب التبرع بنجاح!");
     } catch (err) {
       console.error("خطأ في تسجيل المتبرع:", err);
-      const message = err?.response?.errors?.[0]?.message || err?.message || "فشل في التسجيل";
+      const message =
+        err?.response?.errors?.[0]?.message || err?.message || "فشل في التسجيل";
       setErrorMsg(message);
       toast.error("فشل في تقديم التسجيل: " + message);
     }
@@ -130,7 +137,9 @@ const DonorRegistration = () => {
         <div className="container py-32 text-center animate-scale-in">
           <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-2">تم التسجيل بنجاح!</h1>
-          <p className="text-muted-foreground">تم تقديم طلب التبرع بنجاح. شكراً لتسجيلك كمتبرع بالدم.</p>
+          <p className="text-muted-foreground">
+            تم تقديم طلب التبرع بنجاح. شكراً لتسجيلك كمتبرع بالدم.
+          </p>
         </div>
       </Layout>
     );
@@ -140,7 +149,9 @@ const DonorRegistration = () => {
     <Layout>
       <section className="hero-gradient py-16">
         <div className="container text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">كن متبرعاً</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">
+            كن متبرعاً
+          </h1>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto">
             سجل كمتبرع بالدم وساعد في إنقاذ الأرواح في مجتمعك.
           </p>
@@ -162,7 +173,12 @@ const DonorRegistration = () => {
             )}
 
             <form className="space-y-4" onSubmit={handleSubmit}>
-              <Input placeholder="الاسم الكامل" required value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                placeholder="الاسم الكامل"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
               <div>
                 <Input
                   type="tel"
@@ -172,7 +188,9 @@ const DonorRegistration = () => {
                   onChange={(e) => setPhone(e.target.value)}
                   maxLength={11}
                 />
-                <p className="text-xs text-muted-foreground mt-1">يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015
+                </p>
               </div>
               <div>
                 <Input
@@ -185,39 +203,73 @@ const DonorRegistration = () => {
                   }}
                   maxLength={14}
                 />
-                <p className="text-xs text-muted-foreground mt-1">يجب أن يبدأ بـ ٢ أو ٣ ويتكون من ١٤ رقم</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  يجب أن يبدأ بـ ٢ أو ٣ ويتكون من ١٤ رقم
+                </p>
               </div>
-              <Input type="date" placeholder="تاريخ الميلاد" required value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+              <Input
+                type="date"
+                placeholder="تاريخ الميلاد"
+                required
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select value={bloodType} onValueChange={setBloodType}>
-                  <SelectTrigger><SelectValue placeholder="فصيلة الدم" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="فصيلة الدم" />
+                  </SelectTrigger>
                   <SelectContent>
                     {bloodTypes.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger><SelectValue placeholder="المدينة / المحافظة" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="المدينة / المحافظة" />
+                  </SelectTrigger>
                   <SelectContent>
                     {governorates.map((g) => (
-                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                      <SelectItem key={g.value} value={g.value}>
+                        {g.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <input type="checkbox" required className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-                <span>أؤكد أن جميع المعلومات المقدمة صحيحة وأوافق على التواصل معي للتبرع بالدم.</span>
+                <input
+                  type="checkbox"
+                  required
+                  className="mt-1"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+                <span>
+                  أؤكد أن جميع المعلومات المقدمة صحيحة وأوافق على التواصل معي
+                  للتبرع بالدم.
+                </span>
               </div>
 
-              <Button type="submit" size="lg" className="w-full gap-2" disabled={createDonor.isPending}>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full gap-2"
+                disabled={createDonor.isPending}
+              >
                 {createDonor.isPending ? (
-                  <><Loader2 className="h-5 w-5 animate-spin" /> جاري التقديم...</>
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" /> جاري التقديم...
+                  </>
                 ) : (
-                  <><Heart className="h-5 w-5" /> تسجيل كمتبرع</>
+                  <>
+                    <Heart className="h-5 w-5" /> تسجيل كمتبرع
+                  </>
                 )}
               </Button>
             </form>

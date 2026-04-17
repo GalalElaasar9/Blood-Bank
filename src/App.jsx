@@ -16,7 +16,7 @@ import Signup from "./pages/Signup.jsx";
 import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
-const CLERK_PUBLISHABLE_KEY = "pk_test_ZmFtb3VzLWxhcmstNS5jbGVyay5hY2NvdW50cy5kZXYk";
+const CLERK_PUBLISHABLE_KEY = "pk_test_ZW5nYWdpbmctYmx1ZWdpbGwtMjIuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +42,8 @@ const App = () => (
             <Route path="/results" element={<Results />} />
             <Route path="/hospitals" element={<ProtectedRoute><Hospitals /></ProtectedRoute>} />
             <Route path="/donor-registration" element={<ProtectedRoute><DonorRegistration /></ProtectedRoute>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/login/*" element={<Login />} />
+            <Route path="/signup/*" element={<Signup />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

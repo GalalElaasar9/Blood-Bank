@@ -3,9 +3,34 @@ import Layout from "@/components/Layout.jsx";
 
 const Login = () => (
   <Layout>
-    <section className="container py-16 flex items-center justify-center min-h-[70vh]" style={{ direction:"ltr" }}>
+    <section
+      className="container py-16 flex items-center justify-center min-h-[70vh]"
+      style={{ direction: "ltr" }}
+    >
       <div className="animate-fade-in">
-        <SignIn routing="path" path="/login" signUpUrl="/signup" afterSignInUrl="/" />
+
+        <SignIn
+          routing="path"
+          path="/login"
+          signUpUrl="/signup"
+          redirectUrl="/"
+
+          appearance={{
+            elements: {
+              socialButtonsBlockButton:
+                "hover:opacity-90"
+            }
+          }}
+
+          oauthFlow="redirect"
+
+          // 👇 أهم سطر
+          additionalOAuthScopes={{
+            google: ["profile", "email"]
+          }}
+
+        />
+
       </div>
     </section>
   </Layout>
