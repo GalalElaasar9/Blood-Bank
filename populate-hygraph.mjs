@@ -280,10 +280,10 @@ async function main() {
     await sleep(DELAY);
   }
 
-  console.log(`\n🎉 تم بنجاح!`);
-  console.log(`   🏥 مستشفيات: ${hospitalIds.length}`);
-  console.log(`   🩸 سجلات دم: ${invCount}`);
-  console.log(`   👤 متبرعين: ${donorCount}`);
+  // console.log(`\n🎉 تم بنجاح!`);
+  // console.log(`   🏥 مستشفيات: ${hospitalIds.length}`);
+  // console.log(`   🩸 سجلات دم: ${invCount}`);
+  // console.log(`   👤 متبرعين: ${donorCount}`);
 }
 
 main().catch(console.error);

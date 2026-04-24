@@ -33,7 +33,7 @@ const Footer = () => (
               <Phone className="h-4 w-4 text-primary" /> +20 123 456 7890
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-primary" /> info@bloodbank-eg.com
+              <Mail className="h-4 w-4 text-primary" /> ayajasser@gmail.com
             </li>
             <li className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" /> القاهرة، مصر
