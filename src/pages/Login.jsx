@@ -24,7 +24,6 @@ const Login = () => (
 
           oauthFlow="redirect"
 
-          // 👇 أهم سطر
           additionalOAuthScopes={{
             google: ["profile", "email"]
           }}

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/Layout.jsx";
-
+import { useToast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import emailjs from "@emailjs/browser";
 
@@ -53,6 +53,7 @@ const contactChannels = [
   },
 ];
 const Contact = () => {
+  const {toast} = useToast();
   const form = useRef();
 
   const sendEmail = (e) => {
@@ -67,12 +68,21 @@ const Contact = () => {
       )
       .then(
         () => {
-          alert("تم إرسال الرسالة بنجاح ✅");
+          toast({
+            title: "تم إرسال الرسالة بنجاح ✅",
+            description: "سيتم الرد عليك في أقرب وقت.",
+            duration: 3000,
+          })
           form.current.reset();
         },
         (error) => {
-          alert("حدث خطأ ❌");
-          console.log(error);
+          toast({
+            title: "حدث خطأ ❌",
+            description: "فشل إرسال الرسالة، حاول مرة أخرى.",
+            variant: "destructive",
+            duration: 2000,
+          });
+          // console.log(error);
         },
       );
   };
