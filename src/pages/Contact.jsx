@@ -61,17 +61,17 @@ const Contact = () => {
 
     emailjs
       .sendForm(
-        "service_5xbr6cg",
-        "template_zap1lyo",
+        "service_dcnh2ce",
+        "template_ul8vfi9",
         form.current,
-        "C0nn_XrhF72hYqymS",
+        "yevoyoagnncuyuzB_",
       )
       .then(
         () => {
           toast({
             title: "تم إرسال الرسالة بنجاح ✅",
             description: "سيتم الرد عليك في أقرب وقت.",
-            duration: 3000,
+            duration: 2000,
           })
           form.current.reset();
         },

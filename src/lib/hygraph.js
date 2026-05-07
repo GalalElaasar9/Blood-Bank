@@ -1,10 +1,8 @@
 import { GraphQLClient, gql } from "graphql-request";
 
-const HYGRAPH_CONTENT_API =
-  "https://eu-west-2.cdn.hygraph.com/content/cmnht9h9r00j308w8mon0qg8p/master";
+const HYGRAPH_CONTENT_API = import.meta.env.VITE_HYGRAPH_CONTENT_API;
 
-const HYGRAPH_MUTATION_API =
-  "https://api-eu-west-2.hygraph.com/v2/cmnht9h9r00j308w8mon0qg8p/master";
+const HYGRAPH_MUTATION_API = import.meta.env.VITE_HYGRAPH_MUTATION_API;
 
 export const hygraphClient = new GraphQLClient(HYGRAPH_CONTENT_API);
 
